@@ -1,13 +1,11 @@
 # LightWanda Importer
 
-# Discord
-First things first, I have a discord server for questions, support and bugs find me here: https://discord.gg/rkkWSH2EMz
 
 # Credits
 Full credits to Ken Nign (Ken9) and Gert De Roost for the original add-on. 
 Wisi for compatibility with Shadow of the Colossus. 
 ASapphicKitsune and Anime Nyan for porting the plugin to 3.0.
-
+ASapphicKitsune for porting to 4.0.
 # Installation
 ### To install LightWanda Importer:
 1. Go here: https://github.com/AnimNyan/LightWanda-Importer/releases/latest > Right click on "LightWandaImporter_v.X.X.X.zip" > Save Link As do NOT unzip it.
