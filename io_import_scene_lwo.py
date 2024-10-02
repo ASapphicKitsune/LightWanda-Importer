@@ -1293,8 +1293,8 @@ def build_objects(object_layers, object_surfs, object_clips, object_tags, object
 
 		principled_bsdf_node.inputs["Base Color"].default_value = (surf_data.colr[:])
 		principled_bsdf_node.inputs["Emission Strength"].default_value = surf_data.lumi
-		principled_bsdf_node.inputs["Specular"].default_value = surf_data.spec
-
+		principled_bsdf_node.inputs["Specular IOR Level"].default_value = surf_data.spec
+        #12
 		# outdated material settings when principled bsdf did not exist
 		# surf_data.bl_mat.diffuse_color = (surf_data.colr[:])
 		# surf_data.bl_mat.diffuse_intensity = surf_data.diff
@@ -1327,7 +1327,11 @@ def build_objects(object_layers, object_surfs, object_clips, object_tags, object
 
 		#if the material has transparency change it to alpha hashed
 		if surf_data.tran != 0.0:
-			# all materials will use alpha hashed regardless
+
+			#mark material for image texture to connect into the mix_rgb_tint_node
+			is_fur_material = True
+		
+        			# all materials will use alpha hashed regardless
 			# because it is only for material preview and eevee
 			# for cycles blender ignores these settings
 			# curr_material.blend_method = 'HASHED'
@@ -1336,31 +1340,28 @@ def build_objects(object_layers, object_surfs, object_clips, object_tags, object
 
 			#if it is has transparency it is probably fur add the vertex color tinting to it
 			#create a vertex color node
-			vertex_color_node = curr_material.node_tree.nodes.new('ShaderNodeVertexColor')
+		vertex_color_node = curr_material.node_tree.nodes.new('ShaderNodeVertexColor')
 
 			#position x, y
-			vertex_color_node.location = (-800, 0)
+		vertex_color_node.location = (-800, 0)
 
 			#create a mixRGB node
-			mix_rgb_tint_node = curr_material.node_tree.nodes.new('ShaderNodeMixRGB')
+		mix_rgb_tint_node = curr_material.node_tree.nodes.new('ShaderNodeMixRGB')
 
-			mix_rgb_tint_node.blend_type = 'MULTIPLY'
-			mix_rgb_tint_node.inputs["Fac"].default_value = 1
+		mix_rgb_tint_node.blend_type = 'MULTIPLY'
+		mix_rgb_tint_node.inputs["Fac"].default_value = 1
 
-			material_link = curr_material.node_tree.links.new
-			material_link(vertex_color_node.outputs["Color"], mix_rgb_tint_node.inputs["Color2"])
+		material_link = curr_material.node_tree.links.new
+		material_link(vertex_color_node.outputs["Color"], mix_rgb_tint_node.inputs["Color2"])
 
-			material_link(mix_rgb_tint_node.outputs["Color"], principled_bsdf_node.inputs["Base Color"])
+		material_link(mix_rgb_tint_node.outputs["Color"], principled_bsdf_node.inputs["Base Color"])
 
 			#-------------------------------------------------------NEED TO CHANGE IS HARDCODED 
 			#-------------------------------------------------------
 			#-------------------------------------------------------
 			#change the vertex color node to use the r vertex color 
-			vertex_color_node.layer_name = "r"
+		vertex_color_node.layer_name = "r"
 			
-			#mark material for image texture to connect into the mix_rgb_tint_node
-			is_fur_material = True
-		
 		# all materials will use alpha hashed regardless
 		# because it is only for material preview and eevee
 		# for cycles blender ignores these settings
@@ -1371,8 +1372,8 @@ def build_objects(object_layers, object_surfs, object_clips, object_tags, object
 		principled_bsdf_node.inputs["Alpha"].default_value = 1.0 - surf_data.tran
 		
 		#translation of this surf_data.bl_mat.translucency = surf_data.trnl
-		principled_bsdf_node.inputs["Transmission"].default_value = surf_data.trnl
-
+		principled_bsdf_node.inputs["Transmission Weight"].default_value = surf_data.trnl
+        #17
 		#translation of surf_data.bl_mat.specular_hardness = int(4*((10*surf_data.glos)*(10*surf_data.glos)))+4
 		#guessing specular hardness which is supposed to specular highlight size is equivalent to inverse of roughness
 		roughness = 1 - surf_data.glos
@@ -1440,10 +1441,10 @@ def build_objects(object_layers, object_surfs, object_clips, object_tags, object
 			nodes = curr_material.node_tree.nodes
 
 			if (num_image_textures_curr_material == 1):
-				if is_fur_material:
-					material_link(image_texture_node_to_load.outputs["Color"], mix_rgb_tint_node.inputs["Color1"])
-				else:
-					material_link(image_texture_node_to_load.outputs["Color"], principled_bsdf_node.inputs["Base Color"])
+
+				material_link(image_texture_node_to_load.outputs["Color"], mix_rgb_tint_node.inputs["Color1"])
+				
+				
 
 				#Deal with alpha by combining the alpha of the image texture and the alpha of the vertex colors
 
@@ -1452,19 +1453,21 @@ def build_objects(object_layers, object_surfs, object_clips, object_tags, object
 				alpha_mix_rgb_node.blend_type = "MULTIPLY"
 				alpha_mix_rgb_node.inputs["Fac"].default_value = 1
 
-				vertex_color_node_2 = curr_material.node_tree.nodes.new('ShaderNodeVertexColor')
+				
+                #Deprecated, didn't have a use
+                #vertex_color_node_2 = curr_material.node_tree.nodes.new('ShaderNodeVertexColor')
 
 				#position x, y
-				vertex_color_node_2.location = (-900, -200)
+				#vertex_color_node_2.location = (-900, -200)
 
 				#-------------------------------------------------------NEED TO CHANGE IS HARDCODED 
 				#-------------------------------------------------------
 				#-------------------------------------------------------
 				# change the vertex color node to use the zALPHA vertex color 
-				vertex_color_node_2.layer_name = "zALPHA"
+				#vertex_color_node_2.layer_name = "zALPHA"
 
 				#link nodes to mixRGB and mixRGB to principled BSDF
-				material_link(vertex_color_node_2.outputs["Color"], alpha_mix_rgb_node.inputs["Color2"])
+				material_link(vertex_color_node.outputs["Alpha"], alpha_mix_rgb_node.inputs["Color2"])
 
 				material_link(image_texture_node_to_load.outputs["Alpha"], alpha_mix_rgb_node.inputs["Color1"])
 				material_link(alpha_mix_rgb_node.outputs["Color"], principled_bsdf_node.inputs["Alpha"])
@@ -1490,10 +1493,10 @@ def build_objects(object_layers, object_surfs, object_clips, object_tags, object
 				#to mix it properly image texture 2 alpha output should go into Fac of the mixRGB node
 				material_link(image_texture_node_2.outputs["Alpha"], mix_rgb_node.inputs["Fac"])
 
-				if is_fur_material:
-					material_link(mix_rgb_node.outputs["Color"], mix_rgb_tint_node.inputs["Color1"])
-				else:
-					material_link(mix_rgb_node.outputs["Color"], principled_bsdf_node.inputs["Base Color"])
+				#if is_fur_material:
+				material_link(mix_rgb_node.outputs["Color"], mix_rgb_tint_node.inputs["Color1"])
+				#else:
+				#	material_link(mix_rgb_node.outputs["Color"], principled_bsdf_node.inputs["Base Color"])
 
 			elif (num_image_textures_curr_material > 2):
 				print("Error: mat " , curr_material.name, " has more than 2 textures! Contact the plugin author!")
