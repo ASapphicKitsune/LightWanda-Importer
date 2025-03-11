@@ -8,7 +8,7 @@ ASapphicKitsune and Anime Nyan for porting the plugin to 3.0.
 ASapphicKitsune for porting to 4.0.
 # Installation
 ### To install LightWanda Importer:
-1. Go here: https://github.com/AnimNyan/LightWanda-Importer/releases/latest > Right click on "LightWandaImporter_v.X.X.X.zip" > Save Link As do NOT unzip it.
+1. Go here: https://github.com/ASapphicKitsune/LightWanda-Importer/releases/latest > Right click on "LightWandaImporter_v.X.X.X.zip" > Save Link As do NOT unzip it.
 2. Open Blender and click Edit > Preferences > Add-Ons > Install > in the file explorer find "LightWandaImporter_v.X.X.X.zip" and select it.
 3. In the Add-Ons search, search for light and enable the LightWanda Importer addon and enable the Add On to complete the installation.
 4. In the same Add-ons tab in step 3. > Install > in the file explorer find "LightWandaImporter_v.X.X.X.zip" and select it.
